@@ -8,16 +8,29 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
-class CategoryTableViewController: UITableViewController {
-
+class CategoryTableViewController: SwipeTableViewController {
+    
     let realm = try! Realm()
     
     var categories: Results<CategoryOfItem>?
     override func viewDidLoad() {
         super.viewDidLoad()
         loadItems()
+        tableView.rowHeight = 80
+        tableView.separatorStyle = .none
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        let backgroundColor = UIColor.flatBlue()
+           let textColor = UIColor.init(contrastingBlackOrWhiteColorOn: backgroundColor, isFlat: true)
+           navigationController!.navigationBar.backgroundColor = backgroundColor
+           navigationController!.navigationBar.tintColor = textColor
+           
+           let textAttributes = [NSAttributedString.Key.foregroundColor : textColor]
+           navigationController!.navigationBar.largeTitleTextAttributes = textAttributes
+       }
     
     func loadItems(){
         categories = realm.objects(CategoryOfItem.self)
@@ -32,6 +45,7 @@ class CategoryTableViewController: UITableViewController {
             alert.dismiss(animated: true) {
                 let newCategory = CategoryOfItem()
                 newCategory.name = (alert.textFields?.first!.text)!
+                newCategory.color = UIColor.randomFlat().hexValue()
               
                 do{
                     try self.realm.write {
@@ -59,9 +73,16 @@ class CategoryTableViewController: UITableViewController {
         categories?.count ?? 1
     }
     
+//    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell") as! SwipeTableViewCell
+//        cell.delegate = self
+//        return cell
+//    }
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = (tableView.dequeueReusableCell(withIdentifier: "CategoryOfItemTableViewCell") as! CategoryOfItemTableViewCell)
-        cell.label.text = categories?[indexPath.row].name ?? "no categotries added yet"
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        cell.textLabel!.text = categories?[indexPath.row].name ?? "no categotries added yet"
+        cell.backgroundColor = UIColor(hexString: categories?[indexPath.row].color)
         return cell
     }
     
@@ -74,6 +95,18 @@ class CategoryTableViewController: UITableViewController {
         let viewController = segue.destination as! TodoListViewController
         if let indexPath = tableView.indexPathForSelectedRow{
             viewController.selectedCategory = categories?[indexPath.row]
+        }
+    }
+    
+    override func updateModel(at indexPath: IndexPath) {
+        if let categoryForDeletion = self.categories?[indexPath.row]{
+            do{
+                try self.realm.write {
+                    self.realm.delete(categoryForDeletion)
+                }
+            } catch {
+                print("error deleting")
+            }
         }
     }
 }

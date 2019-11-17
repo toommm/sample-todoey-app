@@ -7,10 +7,11 @@
 //
 
 import UIKit
+import SwipeCellKit
 
-class CategoryOfItemTableViewCell: UITableViewCell {
+class CategoryOfItemTableViewCell: SwipeTableViewCell {
 
-    @IBOutlet weak var label: UILabel!
+//    @IBOutlet weak var label: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()

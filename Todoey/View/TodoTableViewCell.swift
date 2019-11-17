@@ -7,10 +7,10 @@
 //
 
 import UIKit
+import SwipeCellKit
 
-class TodoTableViewCell: UITableViewCell {
+class TodoTableViewCell: SwipeTableViewCell {
 
-    @IBOutlet weak var label: UILabel!
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
